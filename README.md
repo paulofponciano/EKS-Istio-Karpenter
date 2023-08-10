@@ -1,0 +1,9 @@
+# EKS-Baseline-with-Istio
+
+    # ISTIO INGRESS
+    # ISTIOD
+    # ALB INGRESS CONTROLLER
+    # CLUSTER AUTOSCALER
+    # DESCHEDULER
+    # METRICS SERVER
+    # EKS ADDONS
