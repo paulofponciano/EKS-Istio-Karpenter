@@ -1,0 +1,11 @@
+kubectl rollout restart deployment client-react -n client-react
+kubectl rollout restart deployment analytics-service -n analytics-service
+kubectl rollout restart deployment authentication-service -n authentication-service
+kubectl rollout restart deployment data-prepper -n data-prepper
+kubectl rollout restart deployment database-service -n database-service
+kubectl rollout restart deployment inventory-service -n inventory-service
+kubectl rollout restart deployment mysql -n mysql
+kubectl rollout restart deployment order-service -n order-service
+kubectl rollout restart deployment otel-collector -n otel-collector
+kubectl rollout restart deployment payment-service -n payment-service
+kubectl rollout restart deployment recommendation-service -n recommendation-service

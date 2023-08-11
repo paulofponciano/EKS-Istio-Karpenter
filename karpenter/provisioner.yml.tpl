@@ -1,10 +1,13 @@
----
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
-  name: default
+  name: ${EKS_CLUSTER}
   namespace: kube-system
 spec:
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: "topology.kubernetes.io/zone"
+      whenUnsatisfiable: ScheduleAnyway
   ttlSecondsAfterEmpty: 60 # scale down nodes after 60 seconds without workloads (excluding daemons)
   ttlSecondsUntilExpired: 604800 # expire nodes after 7 days (in seconds) = 7 * 60 * 60 * 24
   limits:
@@ -14,20 +17,28 @@ spec:
     # Include general purpose instance families
     - key: karpenter.k8s.aws/instance-family
       operator: In
-      values: ["t3","c5a"]
+      values:
+%{ for ify in INSTANCE_FAMILY ~}
+      - ${ify}
+%{ endfor ~}
     - key: karpenter.k8s.aws/instance-size
       operator: In
       values:
-        - large
-        - xlarge
-        - 2xlarge
-    - key: kubernetes.io/arch 
-      operator: In 
-      values:
-        - amd64
+%{ for ic in INSTANCE_SIZES ~}
+      - ${ic}
+%{ endfor ~} 
     - key: karpenter.sh/capacity-type
       operator: In
-      values: ["spot"]
+      values:
+%{ for ct in CAPACITY_TYPE ~}
+      - ${ct}
+%{ endfor ~}
+    - key: "topology.kubernetes.io/zone" 
+      operator: In
+      values:
+%{ for azs in AVAILABILITY_ZONES ~}
+      - ${azs}
+%{ endfor ~}
   providerRef:
     name: my-provider
 ---
@@ -40,7 +51,7 @@ spec:
   subnetSelector:
     karpenter.sh/discovery: "true"
   securityGroupSelector:
-    aws:eks:cluster-name: "devops-labs" #CHANGE THIS VALUE TO CLUSTER NAME
+    aws:eks:cluster-name: ${EKS_CLUSTER} #CHANGE THIS VALUE TO CLUSTER NAME
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:

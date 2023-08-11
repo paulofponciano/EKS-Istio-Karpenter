@@ -26,6 +26,7 @@ resource "aws_subnet" "private_subnet_az1" {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     Project                                     = "${var.project}"
     Terraform                                   = true
+    "karpenter.sh/discovery"                    = "true"
   }
 }
 
@@ -40,6 +41,7 @@ resource "aws_subnet" "private_subnet_az2" {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     Project                                     = "${var.project}"
     Terraform                                   = true
+    "karpenter.sh/discovery"                    = "true"
   }
 }
 

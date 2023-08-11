@@ -50,6 +50,22 @@ variable "max_size" {
   type = string
 }
 
+variable "karpenter_instance_class" {
+  type = list
+}
+
+variable "karpenter_instance_size" {
+  type = list 
+}
+
+variable "karpenter_capacity_type" {
+  type = list
+}
+
+variable "karpenter_azs" {
+  type = list
+}
+
 variable "nlb_ingress_internal" {
   type = bool
 }
@@ -60,11 +76,6 @@ variable "nlb_ingress_type" {
 
 variable "proxy_protocol_v2" {
   type = bool
-}
-
-variable "cluster_autoscaler" {
-  type        = bool
-  description = "Enable Cluster Autoscaler"
 }
 
 variable "descheduler" {

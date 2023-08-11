@@ -17,23 +17,41 @@ instance_type = [
   "m5.large"
 ]
 
-cluster_autoscaler = "true"
-desired_size       = "2"
-min_size           = "1"
-max_size           = "3"
+desired_size = "1"
+min_size     = "1"
+max_size     = "1"
 
 enabled_cluster_log_types = [
   "api", "audit", "authenticator", "controllerManager", "scheduler"
 ]
 
-nlb_ingress_internal         = "false"
-nlb_ingress_type             = "network"
-proxy_protocol_v2            = "false"
-descheduler                  = "true"
-addon_cni_version            = "v1.13.4-eksbuild.1"
-addon_coredns_version        = "v1.10.1-eksbuild.2"
-addon_kubeproxy_version      = "v1.27.3-eksbuild.2"
-addon_csi_version            = "v1.21.0-eksbuild.1"
+nlb_ingress_internal    = "false"
+nlb_ingress_type        = "network"
+proxy_protocol_v2       = "false"
+descheduler             = "true"
+addon_cni_version       = "v1.13.4-eksbuild.1"
+addon_coredns_version   = "v1.10.1-eksbuild.2"
+addon_kubeproxy_version = "v1.27.3-eksbuild.2"
+addon_csi_version       = "v1.21.0-eksbuild.1"
+
+## KARPENTER OPTIONS
+
+karpenter_instance_class = [
+  "m5",
+  "c5",
+  "t3a"
+]
+karpenter_instance_size = [
+  "large",
+  "2xlarge"
+]
+karpenter_capacity_type = [
+  "spot"
+]
+karpenter_azs = [
+  "us-east-2a",
+  "us-east-2b"
+]
 
 ## NETWORKING
 

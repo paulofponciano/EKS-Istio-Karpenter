@@ -115,92 +115,6 @@ resource "aws_iam_policy_attachment" "aws_load_balancer_controller_policy" {
   policy_arn = aws_iam_policy.aws_load_balancer_controller_policy.arn
 }
 
-## CLUSTER AUTOSCALER
-
-data "aws_iam_policy_document" "cluster_autoscaler_role" {
-  statement {
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    effect  = "Allow"
-
-    condition {
-      test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
-      values = [
-        "system:serviceaccount:kube-system:cluster-autoscaler",
-        "system:serviceaccount:kube-system:aws-cluster-autoscaler"
-      ]
-    }
-
-    principals {
-      identifiers = [aws_iam_openid_connect_provider.eks.arn]
-      type        = "Federated"
-    }
-  }
-}
-
-resource "aws_iam_role" "cluster_autoscaler_role" {
-  assume_role_policy = data.aws_iam_policy_document.cluster_autoscaler_role.json
-  name               = join("-", ["role", var.cluster_name, var.environment, "cluster-autoscaler"])
-}
-
-data "aws_iam_policy_document" "cluster_autoscaler_policy" {
-  version = "2012-10-17"
-
-  statement {
-
-    effect = "Allow"
-    actions = [
-      "autoscaling-plans:DescribeScalingPlans",
-      "autoscaling-plans:GetScalingPlanResourceForecastData",
-      "autoscaling-plans:DescribeScalingPlanResources",
-      "autoscaling:DescribeAutoScalingNotificationTypes",
-      "autoscaling:DescribeLifecycleHookTypes",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:DescribeTerminationPolicyTypes",
-      "autoscaling:DescribeScalingProcessTypes",
-      "autoscaling:DescribePolicies",
-      "autoscaling:DescribeTags",
-      "autoscaling:DescribeLaunchConfigurations",
-      "autoscaling:DescribeMetricCollectionTypes",
-      "autoscaling:DescribeLoadBalancers",
-      "autoscaling:DescribeLifecycleHooks",
-      "autoscaling:DescribeAdjustmentTypes",
-      "autoscaling:DescribeScalingActivities",
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeAccountLimits",
-      "autoscaling:DescribeScheduledActions",
-      "autoscaling:DescribeLoadBalancerTargetGroups",
-      "autoscaling:DescribeNotificationConfigurations",
-      "autoscaling:DescribeInstanceRefreshes",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "ec2:DescribeLaunchTemplateVersions"
-    ]
-
-    resources = [
-      "*"
-    ]
-
-  }
-}
-
-resource "aws_iam_policy" "cluster_autoscaler_policy" {
-  name        = join("-", ["policy", var.cluster_name, var.environment, "cluster-autoscaler"])
-  path        = "/"
-  description = var.cluster_name
-
-  policy = data.aws_iam_policy_document.cluster_autoscaler_policy.json
-}
-
-resource "aws_iam_policy_attachment" "cluster_autoscaler" {
-  name = "cluster_autoscaler"
-  roles = [
-    aws_iam_role.cluster_autoscaler_role.name
-  ]
-
-  policy_arn = aws_iam_policy.cluster_autoscaler_policy.arn
-}
-
 ## NODES
 
 data "aws_iam_policy_document" "eks_nodes_role" {
@@ -330,4 +244,78 @@ resource "aws_iam_role_policy_attachment" "eks-cluster-cluster" {
 resource "aws_iam_role_policy_attachment" "eks-cluster-service" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
   role       = aws_iam_role.eks_cluster_role.name
+}
+
+## KARPENTER CRONTROLLER
+
+data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:karpenter:karpenter"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "karpenter_controller" {
+  assume_role_policy = data.aws_iam_policy_document.karpenter_controller_assume_role_policy.json
+  name               = join("-", ["role", var.cluster_name, var.environment, "karpenter"])
+}
+
+resource "aws_iam_policy" "karpenter_controller" {
+  policy = file("karpenter/karpenter-controller-trust-policy.json")
+  name   = join("-", ["policy", var.cluster_name, var.environment, "karpenter"])
+}
+
+resource "aws_iam_role_policy_attachment" "aws_load_balancer_controller_attach" {
+  role       = aws_iam_role.karpenter_controller.name
+  policy_arn = aws_iam_policy.karpenter_controller.arn
+}
+
+resource "aws_iam_instance_profile" "karpenter" {
+  name = "KarpenterNodeInstanceProfile"
+  role = aws_iam_role.eks_nodes_roles.name
+}
+
+## ARGOCD IMAGE UPDATER
+
+data "aws_iam_policy_document" "argocd_image_updater" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:argocd:argocd-image-updater"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "argocd_image_updater" {
+  name = join("-", ["role", var.cluster_name, var.environment, "argocd-image-updater"])
+
+  assume_role_policy = data.aws_iam_policy_document.argocd_image_updater.json
+  tags = {
+    Terraform = "true"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_access_origination" {
+  role       = aws_iam_role.argocd_image_updater.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
