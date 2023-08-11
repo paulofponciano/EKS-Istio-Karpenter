@@ -9,7 +9,7 @@
     # KARPENTER
 
     # Prometheus Deploy (Helm)
-    
+
          helm install prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace prometheus
 
     # KIALI Deploy (Helm)
@@ -26,3 +26,8 @@
          --set auth.strategy=anonymous \
          kiali-server \
          kiali/kiali-server
+
+    # ConfigMap argocd-cmd-params-cm
+
+        data:
+          server.insecure: 'true'
