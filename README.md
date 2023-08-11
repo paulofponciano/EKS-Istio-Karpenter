@@ -1,10 +1,9 @@
 # EKS-Baseline-with-Istio-Karpenter
 
-    # ISTIO INGRESS
+    # ISTIO-INGRESS
     # ISTIOD
+    # ISTIO-BASE
     # ALB INGRESS CONTROLLER
-    # CLUSTER AUTOSCALER (for initial node-group)
-    # DESCHEDULER
     # METRICS SERVER
     # EKS ADDONS
     # KARPENTER
