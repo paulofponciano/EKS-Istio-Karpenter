@@ -82,11 +82,6 @@ variable "proxy_protocol_v2" {
   type = bool
 }
 
-variable "descheduler" {
-  type        = bool
-  description = "Enable Descheduler"
-}
-
 variable "addon_cni_version" {
   type        = string
   description = "VPC CNI Version"

@@ -25,15 +25,17 @@ enabled_cluster_log_types = [
   "api", "audit", "authenticator", "controllerManager", "scheduler"
 ]
 
-nlb_ingress_internal    = "false"
-enable_cross_zone_lb    = "true"
-nlb_ingress_type        = "network"
-proxy_protocol_v2       = "false"
-descheduler             = "true"
 addon_cni_version       = "v1.13.4-eksbuild.1"
 addon_coredns_version   = "v1.10.1-eksbuild.2"
 addon_kubeproxy_version = "v1.27.3-eksbuild.2"
 addon_csi_version       = "v1.21.0-eksbuild.1"
+
+## INGRESS OPTIONS (ISTIO NLB)
+
+nlb_ingress_internal = "false"
+enable_cross_zone_lb = "true"
+nlb_ingress_type     = "network"
+proxy_protocol_v2    = "false"
 
 ## KARPENTER OPTIONS
 
