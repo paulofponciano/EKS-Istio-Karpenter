@@ -246,7 +246,7 @@ resource "aws_iam_role_policy_attachment" "eks-cluster-service" {
   role       = aws_iam_role.eks_cluster_role.name
 }
 
-## KARPENTER CRONTROLLER
+## KARPENTER CONTROLLER
 
 data "aws_iam_policy_document" "karpenter_controller_assume_role_policy" {
   statement {

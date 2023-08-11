@@ -350,7 +350,7 @@ spec:
     istio: ingressgateway # use istio default controller
   servers:
   - port:
-      number: 80
+      number: 443 #80
       name: http
       protocol: HTTP
     hosts:

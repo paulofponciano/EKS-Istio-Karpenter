@@ -70,6 +70,10 @@ variable "nlb_ingress_internal" {
   type = bool
 }
 
+variable "enable_cross_zone_lb" {
+  type = bool
+}
+
 variable "nlb_ingress_type" {
   type = string
 }

@@ -2,6 +2,7 @@ resource "aws_lb" "istio_ingress" {
   name               = join("-", [var.cluster_name, var.environment, "nlb-ingress"])
   internal           = var.nlb_ingress_internal
   load_balancer_type = var.nlb_ingress_type
+  enable_cross_zone_load_balancing    = var.enable_cross_zone_lb
 
   subnets = [
     aws_subnet.public_subnet_az1.id,
@@ -33,10 +34,10 @@ resource "aws_lb_target_group" "https" {
 resource "aws_lb_listener" "ingress_443" {
   load_balancer_arn = aws_lb.istio_ingress.arn
   port              = "443"
-  protocol          = "TCP"
-  # protocol          = "TLS"
-  # certificate_arn   = "arn:aws:iam::187416307283:server-certificate/test_cert_rab3wuqwgja25ct3n4jdj2tzu4"
-  # alpn_policy       = "HTTP2Preferred"
+  #protocol          = "TCP"
+  protocol          = "TLS"
+  certificate_arn   = "arn:aws:acm:us-east-2:310240692520:certificate/925700c8-03d1-4d4a-890a-239ffe4fa4f0"
+  alpn_policy       = "HTTP2Preferred"
 
   default_action {
     type             = "forward"

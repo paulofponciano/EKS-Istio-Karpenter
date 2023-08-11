@@ -1,7 +1,7 @@
 ## PROJECT BASE
 
 cluster_name = "pegasus"
-environment  = "stg"
+environment  = "staging"
 project      = "devops"
 aws_region   = "us-east-2"
 az1          = "us-east-2a"
@@ -14,7 +14,7 @@ k8s_version = "1.27"
 endpoint_private_access = true
 
 instance_type = [
-  "m5.large"
+  "t3a.medium"
 ]
 
 desired_size = "1"
@@ -26,6 +26,7 @@ enabled_cluster_log_types = [
 ]
 
 nlb_ingress_internal    = "false"
+enable_cross_zone_lb    = "true"
 nlb_ingress_type        = "network"
 proxy_protocol_v2       = "false"
 descheduler             = "true"
