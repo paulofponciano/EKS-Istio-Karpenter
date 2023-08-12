@@ -285,37 +285,3 @@ resource "aws_iam_instance_profile" "karpenter" {
   name = "KarpenterNodeInstanceProfile"
   role = aws_iam_role.eks_nodes_roles.name
 }
-
-## ARGOCD IMAGE UPDATER
-
-data "aws_iam_policy_document" "argocd_image_updater" {
-  statement {
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    effect  = "Allow"
-
-    condition {
-      test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
-      values   = ["system:serviceaccount:argocd:argocd-image-updater"]
-    }
-
-    principals {
-      identifiers = [aws_iam_openid_connect_provider.eks.arn]
-      type        = "Federated"
-    }
-  }
-}
-
-resource "aws_iam_role" "argocd_image_updater" {
-  name = join("-", ["role", var.cluster_name, var.environment, "argocd-image-updater"])
-
-  assume_role_policy = data.aws_iam_policy_document.argocd_image_updater.json
-  tags = {
-    Terraform = "true"
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "ecr_access_origination" {
-  role       = aws_iam_role.argocd_image_updater.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
