@@ -26,20 +26,3 @@
          --set auth.strategy=anonymous \
          kiali-server \
          kiali/kiali-server
-
-    # ARGOCD Deploy
-
-        kubectl apply -f argocd_ns.yaml
-        kubectl apply -n argocd -f argocd_install.yaml
-        kubectl apply -n argocd -f argocd_ingress.yaml
-
-        # Adicionar ao ConfigMap (argocd-cmd-params-cm)
-        
-        kubectl edit cm argocd-cmd-params-cm -n argocd
-        
-        data:
-          server.insecure: 'true'
-
-        # Recuperar password
-
-        kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
