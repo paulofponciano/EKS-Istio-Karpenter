@@ -207,6 +207,44 @@ resource "aws_iam_policy_attachment" "csi_driver" {
   policy_arn = aws_iam_policy.csi_driver.arn
 }
 
+data "aws_iam_policy_document" "nodes_volume_create" {
+  version = "2012-10-17"
+
+  statement {
+
+    effect = "Allow"
+    actions = [
+      "ec2:CreateVolume",
+      "ec2:DeleteVolume",
+      "ec2:DetachVolume",
+      "ec2:AttachVolume",
+      "ec2:CreateTags",
+      "ec2:DeleteTags"
+    ]
+
+    resources = [
+      "*"
+    ]
+
+  }
+}
+
+resource "aws_iam_policy" "nodes_volume_create" {
+  name        = join("-", ["policy", var.cluster_name, var.environment, "nodes-volume-create"])
+  path        = "/"
+  description = var.cluster_name
+
+  policy = data.aws_iam_policy_document.nodes_volume_create.json
+}
+
+resource "aws_iam_policy_attachment" "nodes_volume_create" {
+  name = "nodes_volume_create"
+
+  roles = [aws_iam_role.eks_nodes_roles.name]
+
+  policy_arn = aws_iam_policy.nodes_volume_create.arn
+}
+
 ## CLUSTER
 
 data "aws_iam_policy_document" "eks_cluster_role" {
