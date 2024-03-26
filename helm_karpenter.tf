@@ -35,7 +35,7 @@ resource "helm_release" "karpenter" {
   depends_on = [aws_eks_node_group.cluster]
 }
 
-resource "time_sleep" "wait_30_seconds_karpenter" {
+resource "time_sleep" "wait_40_seconds_karpenter" {
   depends_on = [helm_release.karpenter]
 
   create_duration = "30s"
