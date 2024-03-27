@@ -32,8 +32,8 @@
         {
             "Action": "ec2:TerminateInstances",
             "Condition": {
-                "StringLike": {
-                    "ec2:ResourceTag/Name": "*karpenter*"
+                "StringEquals": {
+                    "aws:TagKeys": "karpenter.sh/managed-by"
                 }
             },
             "Effect": "Allow",
