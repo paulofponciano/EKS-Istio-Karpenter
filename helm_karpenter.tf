@@ -5,7 +5,7 @@ resource "helm_release" "karpenter" {
   name       = "karpenter"
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
-  version    = "v0.31.0"
+  version    = "v0.34.3"
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
@@ -13,12 +13,12 @@ resource "helm_release" "karpenter" {
   }
 
   set {
-    name  = "settings.aws.clusterName"
+    name  = "settings.clusterName"
     value = var.cluster_name
   }
 
   set {
-    name  = "settings.aws.clusterEndpoint"
+    name  = "settings.clusterEndpoint"
     value = aws_eks_cluster.eks_cluster.endpoint
   }
 
@@ -35,7 +35,7 @@ resource "helm_release" "karpenter" {
   depends_on = [aws_eks_node_group.cluster]
 }
 
-resource "time_sleep" "wait_40_seconds_karpenter" {
+resource "time_sleep" "wait_30_seconds_karpenter" {
   depends_on = [helm_release.karpenter]
 
   create_duration = "30s"
@@ -53,7 +53,7 @@ resource "kubectl_manifest" "karpenter_provisioner" {
 
   depends_on = [
     helm_release.karpenter,
-    time_sleep.wait_40_seconds_karpenter
+    time_sleep.wait_30_seconds_karpenter
   ]
 }
 
@@ -65,6 +65,6 @@ resource "kubectl_manifest" "karpenter_nodetemplate" {
 
   depends_on = [
     helm_release.karpenter,
-    time_sleep.wait_40_seconds_karpenter
+    time_sleep.wait_30_seconds_karpenter
   ]
 }
