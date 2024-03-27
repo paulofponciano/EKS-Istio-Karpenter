@@ -33,7 +33,7 @@
         {
             "Action": "ec2:TerminateInstances",
             "Condition": {
-                "StringEquals": {
+                "ForAllValues:StringEquals": {
                     "aws:TagKeys": "karpenter.sh/managed-by"
                 }
             },
