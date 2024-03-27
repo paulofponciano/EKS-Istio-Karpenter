@@ -41,9 +41,9 @@ resource "time_sleep" "wait_30_seconds_karpenter" {
   create_duration = "30s"
 }
 
-resource "kubectl_manifest" "karpenter_provisioner" {
+resource "kubectl_manifest" "karpenter_nodepool" {
   yaml_body = templatefile(
-    "./karpenter/provisioner.yml.tpl", {
+    "./karpenter/nodepool.yml.tpl", {
       EKS_CLUSTER        = var.cluster_name
       CAPACITY_TYPE      = var.karpenter_capacity_type
       INSTANCE_FAMILY    = var.karpenter_instance_class
@@ -57,9 +57,9 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   ]
 }
 
-resource "kubectl_manifest" "karpenter_nodetemplate" {
+resource "kubectl_manifest" "karpenter_nodeclass" {
   yaml_body = templatefile(
-    "./karpenter/nodetemplate.yml.tpl", {
+    "./karpenter/nodeclass.yml.tpl", {
       EKS_CLUSTER = var.cluster_name
   })
 
