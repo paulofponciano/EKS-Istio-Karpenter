@@ -129,8 +129,8 @@ resource "helm_release" "istio_ingress" {
   ]
 }
 
-resource "time_sleep" "wait_30_seconds_istio" {
-  depends_on = [helm_release.karpenter]
+resource "time_sleep" "wait_30_seconds_albcontroller" {
+  depends_on = [helm_release.alb_ingress_controller]
 
   create_duration = "30s"
 }
@@ -156,7 +156,8 @@ YAML
     kubernetes_config_map.aws-auth,
     helm_release.istio_base,
     helm_release.istiod,
-    time_sleep.wait_30_seconds_istio
+    helm_release.alb_ingress_controller,
+    time_sleep.wait_30_seconds_albcontroller
   ]
 
 }
@@ -181,7 +182,8 @@ YAML
     kubernetes_config_map.aws-auth,
     helm_release.istio_base,
     helm_release.istiod,
-    time_sleep.wait_30_seconds_istio
+    helm_release.alb_ingress_controller,
+    time_sleep.wait_30_seconds_albcontroller
   ]
 
 }
