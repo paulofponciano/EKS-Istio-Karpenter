@@ -114,17 +114,10 @@ spec:
       requirements:
         - key: karpenter.k8s.aws/instance-size
           operator: In
-          values: [
-            "${var.karpenter_instance_size[0]}",
-            "${var.karpenter_instance_size[1]}"
-            ]
+          values: [${join(",", [for instance_size in var.karpenter_instance_size : "\"${instance_size}\""])}]
         - key: karpenter.k8s.aws/instance-family
           operator: In
-          values: [
-            "${var.karpenter_instance_class[0]}",
-            "${var.karpenter_instance_class[1]}",
-            "${var.karpenter_instance_class[2]}"
-            ]
+          values: [${join(",", [for instance_class in var.karpenter_instance_class : "\"${instance_class}\""])}]
         - key: kubernetes.io/os
           operator: In
           values: ["linux"]
@@ -133,10 +126,7 @@ spec:
           values: ["spot"]
         - key: "topology.kubernetes.io/zone"
           operator: In
-          values: [
-            "${var.karpenter_azs[0]}",
-            "${var.karpenter_azs[1]}"
-            ]
+          values: [${join(",", [for az in var.karpenter_azs : "\"${az}\""])}]
       nodeClassRef:
         apiVersion: karpenter.k8s.aws/v1beta1
         kind: EC2NodeClass
