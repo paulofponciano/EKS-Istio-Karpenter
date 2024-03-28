@@ -129,6 +129,12 @@ resource "helm_release" "istio_ingress" {
   ]
 }
 
+resource "time_sleep" "wait_30_seconds_istio" {
+  depends_on = [helm_release.karpenter]
+
+  create_duration = "30s"
+}
+
 resource "kubectl_manifest" "istio_target_group_binding_http" {
   yaml_body = <<YAML
 apiVersion: elbv2.k8s.aws/v1beta1
@@ -149,7 +155,8 @@ YAML
     aws_eks_node_group.cluster,
     kubernetes_config_map.aws-auth,
     helm_release.istio_base,
-    helm_release.istiod
+    helm_release.istiod,
+    time_sleep.wait_30_seconds_istio
   ]
 
 }
@@ -173,7 +180,8 @@ YAML
     aws_eks_node_group.cluster,
     kubernetes_config_map.aws-auth,
     helm_release.istio_base,
-    helm_release.istiod
+    helm_release.istiod,
+    time_sleep.wait_30_seconds_istio
   ]
 
 }

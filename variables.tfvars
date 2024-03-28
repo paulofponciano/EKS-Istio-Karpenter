@@ -39,6 +39,8 @@ proxy_protocol_v2    = "false"
 
 ## KARPENTER OPTIONS
 
+## If you change the number of items in the lists, you need to check the file helm_karpenter.tf > resource "kubectl_manifest" "karpenter-nodepool-default"
+
 karpenter_instance_class = [
   "m5",
   "c5",

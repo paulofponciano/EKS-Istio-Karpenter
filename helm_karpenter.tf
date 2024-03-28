@@ -41,29 +41,115 @@ resource "time_sleep" "wait_30_seconds_karpenter" {
   create_duration = "30s"
 }
 
-resource "kubectl_manifest" "karpenter_nodepool" {
-  yaml_body = templatefile(
-    "./karpenter/nodepool.yml.tpl", {
-      EKS_CLUSTER        = var.cluster_name
-      CAPACITY_TYPE      = var.karpenter_capacity_type
-      INSTANCE_FAMILY    = var.karpenter_instance_class
-      INSTANCE_SIZES     = var.karpenter_instance_size
-      AVAILABILITY_ZONES = var.karpenter_azs
-  })
+# resource "kubectl_manifest" "karpenter_nodepool" {
+#   yaml_body = templatefile(
+#     "./karpenter/nodepool.yml.tpl", {
+#       EKS_CLUSTER        = var.cluster_name
+#       CAPACITY_TYPE      = var.karpenter_capacity_type
+#       INSTANCE_FAMILY    = var.karpenter_instance_class
+#       INSTANCE_SIZES     = var.karpenter_instance_size
+#       AVAILABILITY_ZONES = var.karpenter_azs
+#   })
+
+#   depends_on = [
+#     helm_release.karpenter,
+#     time_sleep.wait_30_seconds_karpenter
+#   ]
+# }
+
+# resource "kubectl_manifest" "karpenter_nodeclass" {
+#   yaml_body = templatefile(
+#     "./karpenter/nodeclass.yml.tpl", {
+#       EKS_CLUSTER = var.cluster_name
+#       NODE_ROLE   = aws_iam_role.eks_nodes_roles.name
+#   })
+
+#   depends_on = [
+#     helm_release.karpenter,
+#     time_sleep.wait_30_seconds_karpenter
+#   ]
+# }
+
+resource "kubectl_manifest" "karpenter-nodeclass" {
+  yaml_body = <<YAML
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: ${var.cluster_name}-default
+spec:
+  amiFamily: AL2
+  role: role-${var.cluster_name}-${var.environment}-eks-nodes
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "true"
+  securityGroupSelectorTerms:
+    - tags:
+        aws:eks:cluster-name: ${var.cluster_name}
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 30Gi
+        volumeType: gp3
+        iops: 3000
+        deleteOnTermination: true
+        throughput: 125
+YAML
 
   depends_on = [
+    kubernetes_config_map.aws-auth,
     helm_release.karpenter,
     time_sleep.wait_30_seconds_karpenter
   ]
 }
 
-resource "kubectl_manifest" "karpenter_nodeclass" {
-  yaml_body = templatefile(
-    "./karpenter/nodeclass.yml.tpl", {
-      EKS_CLUSTER = var.cluster_name
-  })
+resource "kubectl_manifest" "karpenter-nodepool-default" {
+  yaml_body = <<YAML
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: ${var.cluster_name}-default
+spec:
+  template:
+    spec:
+      requirements:
+        - key: karpenter.k8s.aws/instance-size
+          operator: In
+          values: [
+            "${var.karpenter_instance_size[0]}",
+            "${var.karpenter_instance_size[1]}"
+            ]
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: [
+            "${var.karpenter_instance_class[0]}",
+            "${var.karpenter_instance_class[1]}",
+            "${var.karpenter_instance_class[2]}"
+            ]
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot"]
+        - key: "topology.kubernetes.io/zone"
+          operator: In
+          values: [
+            "${var.karpenter_azs[0]}",
+            "${var.karpenter_azs[1]}"
+            ]
+      nodeClassRef:
+        apiVersion: karpenter.k8s.aws/v1beta1
+        kind: EC2NodeClass
+        name: ${var.cluster_name}-default
+  limits:
+    cpu: 1000
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 72h
+YAML
 
   depends_on = [
+    kubernetes_config_map.aws-auth,
     helm_release.karpenter,
     time_sleep.wait_30_seconds_karpenter
   ]
