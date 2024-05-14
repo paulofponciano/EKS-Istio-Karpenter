@@ -1,11 +1,11 @@
 ## PROJECT BASE
 
-cluster_name = "pegasus"
+cluster_name = "pegasus-2"
 environment  = "staging"
 project      = "devops"
-aws_region   = "us-east-2"
-az1          = "us-east-2a"
-az2          = "us-east-2b"
+aws_region   = "us-west-2"
+az1          = "us-west-2a"
+az2          = "us-west-2b"
 
 ## CLUSTER OPTIONS
 
@@ -54,8 +54,8 @@ karpenter_capacity_type = [
   "spot"
 ]
 karpenter_azs = [
-  "us-east-2a",
-  "us-east-2b"
+  "us-west-2a",
+  "us-west-2b"
 ]
 
 ## NETWORKING
