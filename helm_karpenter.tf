@@ -5,7 +5,7 @@ resource "helm_release" "karpenter" {
   name       = "karpenter"
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
-  version    = "v0.34.3"
+  version    = "0.36.2"
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
@@ -91,6 +91,7 @@ spec:
         volumeSize: 30Gi
         volumeType: gp3
         iops: 3000
+        encrypted: true
         deleteOnTermination: true
         throughput: 125
 YAML
