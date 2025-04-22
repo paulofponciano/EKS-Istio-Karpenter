@@ -26,7 +26,11 @@ resource "aws_eks_cluster" "eks_cluster" {
       aws_subnet.private_subnet_az1.id,
       aws_subnet.private_subnet_az2.id,
     ]
+  }
 
+  access_config {
+    authentication_mode                         = "API"
+    bootstrap_cluster_creator_admin_permissions = true
   }
 
   encryption_config {
@@ -84,10 +88,6 @@ resource "aws_eks_node_group" "cluster" {
       scaling_config[0].desired_size
     ]
   }
-
-  depends_on = [
-    kubernetes_config_map.aws-auth
-  ]
 }
 
 resource "aws_autoscaling_group_tag" "tag_name" {

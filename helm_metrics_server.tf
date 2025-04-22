@@ -1,6 +1,6 @@
 resource "helm_release" "metrics_server" {
     name        = "metrics-server"
-    repository  = "https://charts.bitnami.com/bitnami" 
+    repository  = "https://kubernetes-sigs.github.io/metrics-server/" 
     chart       = "metrics-server"
     namespace   = "kube-system"
     
@@ -12,6 +12,5 @@ resource "helm_release" "metrics_server" {
     depends_on = [
         aws_eks_cluster.eks_cluster,
         aws_eks_node_group.cluster,
-        kubernetes_config_map.aws-auth
     ]
 }

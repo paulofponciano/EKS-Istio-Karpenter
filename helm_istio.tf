@@ -5,12 +5,13 @@ resource "helm_release" "istio_base" {
   namespace        = "istio-system"
   create_namespace = true
 
-  version = "1.22.0"
+  version = "1.25.2"
 
   depends_on = [
     aws_eks_cluster.eks_cluster,
     aws_eks_node_group.cluster,
-    kubernetes_config_map.aws-auth
+    helm_release.karpenter,
+    time_sleep.wait_30_seconds_karpenter
   ]
 }
 
@@ -21,13 +22,14 @@ resource "helm_release" "istiod" {
   namespace        = "istio-system"
   create_namespace = true
 
-  version = "1.22.0"
+  version = "1.25.2"
 
   depends_on = [
     aws_eks_cluster.eks_cluster,
     aws_eks_node_group.cluster,
-    kubernetes_config_map.aws-auth,
-    helm_release.istio_base
+    helm_release.istio_base,
+    helm_release.karpenter,
+    time_sleep.wait_30_seconds_karpenter
   ]
 }
 
@@ -38,7 +40,7 @@ resource "helm_release" "istio_ingress" {
   namespace        = "istio-system"
   create_namespace = true
 
-  version = "1.22.0"
+  version = "1.25.2"
 
   set {
     name  = "service.type"
@@ -123,16 +125,17 @@ resource "helm_release" "istio_ingress" {
   depends_on = [
     aws_eks_cluster.eks_cluster,
     aws_eks_node_group.cluster,
-    kubernetes_config_map.aws-auth,
     helm_release.istio_base,
-    helm_release.istiod
+    helm_release.istiod,
+    helm_release.karpenter,
+    time_sleep.wait_30_seconds_karpenter
   ]
 }
 
-resource "time_sleep" "wait_30_seconds_albcontroller" {
+resource "time_sleep" "wait_40_seconds_albcontroller" {
   depends_on = [helm_release.alb_ingress_controller]
 
-  create_duration = "30s"
+  create_duration = "40s"
 }
 
 resource "kubectl_manifest" "istio_target_group_binding_http" {
@@ -153,11 +156,10 @@ YAML
   depends_on = [
     aws_eks_cluster.eks_cluster,
     aws_eks_node_group.cluster,
-    kubernetes_config_map.aws-auth,
     helm_release.istio_base,
     helm_release.istiod,
     helm_release.alb_ingress_controller,
-    time_sleep.wait_30_seconds_albcontroller
+    time_sleep.wait_40_seconds_albcontroller,
   ]
 
 }
@@ -179,11 +181,10 @@ YAML
   depends_on = [
     aws_eks_cluster.eks_cluster,
     aws_eks_node_group.cluster,
-    kubernetes_config_map.aws-auth,
     helm_release.istio_base,
     helm_release.istiod,
     helm_release.alb_ingress_controller,
-    time_sleep.wait_30_seconds_albcontroller
+    time_sleep.wait_40_seconds_albcontroller,
   ]
 
 }
