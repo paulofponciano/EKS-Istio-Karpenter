@@ -19,7 +19,13 @@
 
 ```bash
 tofu init
+```
+
+```bash
 tofu plan --var-file variables.tfvars
+```
+
+```bash
 tofu apply --var-file variables.tfvars
 ```
 
