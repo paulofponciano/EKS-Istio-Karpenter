@@ -15,6 +15,14 @@
 > [!NOTE]
 > Caso não utilize certificado do ACM, altere o resource "aws_lb_listener" "ingress_443" no arquivo 'nlb.tf' comentando as linhas 38, 39 e 40. Remova o comentário da linha 37. Caso utilize, altere o ARN na linha 39.
 
+## Provisioning
+
+```bash
+tofu init
+tofu plan --var-file variables.tfvars
+tofu apply --var-file variables.tfvars
+```
+
 ## Requirements
 
 | Name | Version |
