@@ -3,13 +3,13 @@
 cluster_name = "pegasus"
 environment  = "staging"
 project      = "devops"
-aws_region   = "us-east-2"
-az1          = "us-east-2a"
-az2          = "us-east-2b"
+aws_region   = "us-west-2"
+az1          = "us-west-2a"
+az2          = "us-west-2b"
 
 ## CLUSTER OPTIONS
 
-k8s_version = "1.33"
+k8s_version = "1.34"
 
 endpoint_private_access = true
 
@@ -28,10 +28,10 @@ enabled_cluster_log_types = [
 create_cluster_access_entry           = false
 cluster_role_or_user_arn_access_entry = ["arn:aws:iam::AWS_ACCOUNT_ID:role/AWS_ROLE_NAME"]
 
-addon_csi_version       = "v1.41.0-eksbuild.1"
-addon_cni_version       = "v1.19.3-eksbuild.1"
-addon_coredns_version   = "v1.11.4-eksbuild.2"
-addon_kubeproxy_version = "v1.32.3-eksbuild.2"
+addon_csi_version       = "v1.53.0-eksbuild.1"
+addon_cni_version       = "v1.20.5-eksbuild.1"
+addon_coredns_version   = "v1.12.4-eksbuild.1"
+addon_kubeproxy_version = "v1.34.1-eksbuild.2"
 
 ## INGRESS OPTIONS (ISTIO NLB)
 
@@ -55,8 +55,8 @@ karpenter_capacity_type = [
   "spot"
 ]
 karpenter_azs = [
-  "us-east-2a",
-  "us-east-2b"
+  "us-west-2a",
+  "us-west-2b"
 ]
 
 ## NETWORKING
